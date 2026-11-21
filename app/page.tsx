@@ -28,7 +28,7 @@ const services = [
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [surveyOpen, setSurveyOpen] = useState(false);
-  const [surveyDone, setSurveyDone] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [reminder, setReminder] = useState("Depends on workload");
   const [workStyle, setWorkStyle] = useState("A little every day");
   const [notificationLevel, setNotificationLevel] = useState("Normal reminders");
@@ -43,7 +43,7 @@ export default function Home() {
   useEffect(() => {
     const complete = window.localStorage.getItem("ah-onboarding-complete");
     if (!complete) setSurveyOpen(true);
-    else setSurveyDone(true);
+    setDataLoaded(true);
   }, []);
 
   const completed = tasks.filter((task) => task.done).length;
@@ -62,7 +62,6 @@ export default function Home() {
   function finishSurvey() {
     window.localStorage.setItem("ah-onboarding-complete", "true");
     window.localStorage.setItem("ah-preferences", JSON.stringify({ reminder, workStyle, notificationLevel, availableTime, priorities }));
-    setSurveyDone(true);
     setSurveyOpen(false);
     setToast("Your preferences have been saved.");
     window.setTimeout(() => setToast(""), 2800);
