@@ -75,10 +75,11 @@ export default function Home() {
 
   useEffect(() => {
     setTodayLabel(new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(new Date()).toUpperCase());
+    let onboardingComplete = false;
     try {
       const savedTasks = window.localStorage.getItem("ah-tasks");
       const savedPreferences = window.localStorage.getItem("ah-preferences");
-      const onboardingComplete = window.localStorage.getItem("ah-onboarding-complete") === "true" || Boolean(savedPreferences);
+      onboardingComplete = window.localStorage.getItem("ah-onboarding-complete") === "true" || Boolean(savedPreferences);
       if (savedTasks) setTasks(JSON.parse(savedTasks) as Task[]);
       if (savedPreferences) {
         const preferences = JSON.parse(savedPreferences) as {
