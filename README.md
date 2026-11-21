@@ -13,7 +13,7 @@ A clean, mobile-first productivity dashboard for bringing schoolwork, deadlines,
 - Notification drawer and AI assistant request panel (clearly marked as not connected)
 - Responsive mobile navigation and compact layouts
 
-## Run locally
+## Google sign-in setup\n\n1. In Firebase Console, open **Authentication → Sign-in method** and enable **Google**.\n2. Under **Authentication → Settings → Authorized domains**, add your deployed Vercel domain (and `localhost` for local development if it is not already listed).\n3. Copy `.env.example` to `.env.local` and fill in your Firebase Web App config.\n4. In Vercel, add the same `NEXT_PUBLIC_FIREBASE_*` variables under Project Settings → Environment Variables, then redeploy.\n\nGoogle sign-in currently authenticates the user and displays their profile. Tasks and preferences still remain in local browser storage; cloud sync is not implemented yet.\n\n## Run locally
 
 ```bash
 npm install
