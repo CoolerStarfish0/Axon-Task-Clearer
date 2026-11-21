@@ -86,11 +86,11 @@ export default function Home() {
           reminder?: string; workStyle?: string; notificationLevel?: string;
           availableTime?: string; priorities?: string[];
         };
-        if (preferences.reminder) setReminder(preferences.reminder);
+        if (preferences.reminder) setReminder(preferences.reminder === "1 week before due date" ? "Week before due date" : preferences.reminder === "Depends on workload" ? "Depends on work load" : preferences.reminder);
         if (preferences.workStyle) setWorkStyle(preferences.workStyle);
         if (preferences.notificationLevel) setNotificationLevel(preferences.notificationLevel);
         if (preferences.availableTime) setAvailableTime(preferences.availableTime);
-        if (preferences.priorities) setPriorities(preferences.priorities);
+        if (preferences.priorities) setPriorities(preferences.priorities.map((item) => item === "Assignments" ? "School assignments" : item).filter((item) => ["School assignments", "Tests and exams", "Projects", "Everything equally"].includes(item)));
       }
     } catch {
       window.localStorage.removeItem("ah-tasks");
