@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
+import { auth, googleProvider, firebaseReady } from "./firebase";
 import {
   ArrowDownRight, ArrowRight, Bell, BookOpen, CalendarDays, Check,
   CheckCheck, ChevronDown, CircleHelp, ClipboardCheck, Clock3,
   LayoutDashboard, ListTodo, Menu, Plus,
-  Search, Settings2, Sparkles, X, Zap
+  Search, Settings2, Sparkles, X, Zap, LogIn, LogOut
 } from "lucide-react";
 
 type Task = { id: number; title: string; subject: string; due: string; priority: "High" | "Medium" | "Low"; done: boolean };
@@ -46,6 +48,9 @@ export default function Home() {
   const [newTaskDue, setNewTaskDue] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState<Task["priority"]>("Medium");
   const [todayLabel, setTodayLabel] = useState("TODAY");
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
     setTodayLabel(new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(new Date()).toUpperCase());
@@ -143,7 +148,7 @@ export default function Home() {
           <div className="service-mini"><span className="service-dot gmail-dot" />Gmail <span className="not-connected">Not connected</span></div>
           <div className="service-mini"><span className="service-dot calendar-dot" />Calendar <span className="not-connected">Not connected</span></div>
           <button className="nav-item settings-link" onClick={() => setToast("Settings will be available in a future update.")}><Settings2 size={18} />Settings</button>
-          <div className="profile-card"><div className="avatar">AH</div><div><strong>Your workspace</strong><small>Personal account</small></div><ChevronDown size={16} className="profile-chevron" /></div>
+          <div className="profile-card"><div className="avatar">{user?.photoURL ? <img src={user.photoURL} alt="" /> : (user?.displayName || "AH").slice(0,2).toUpperCase()}</div><div><strong>{user?.displayName || "Your workspace"}</strong><small>{user ? user.email : "Not signed in"}</small></div>{user ? <button className="profile-action" title="Sign out" aria-label="Sign out" onClick={handleSignOut}><LogOut size={16}/></button> : <button className="profile-action" title="Sign in with Google" aria-label="Sign in with Google" onClick={handleGoogleSignIn}><LogIn size={16}/></button>}</div>
         </div>
       </aside>
 
