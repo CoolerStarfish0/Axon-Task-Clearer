@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDownRight, ArrowRight, Bell, BookOpen, CalendarDays, Check,
-  CheckCheck, ChevronDown, CircleHelp, ClipboardCheck, Clock3, FileText,
-  FolderOpen, GraduationCap, LayoutDashboard, ListTodo, Menu, Plus,
+  CheckCheck, ChevronDown, CircleHelp, ClipboardCheck, Clock3,
+  LayoutDashboard, ListTodo, Menu, Plus,
   Search, Settings2, Sparkles, X, Zap
 } from "lucide-react";
 
@@ -39,20 +39,52 @@ export default function Home() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [assistantText, setAssistantText] = useState("");
   const [toast, setToast] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [addTaskOpen, setAddTaskOpen] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskSubject, setNewTaskSubject] = useState("");
+  const [newTaskDue, setNewTaskDue] = useState("");
+  const [newTaskPriority, setNewTaskPriority] = useState<Task["priority"]>("Medium");
+  const [todayLabel, setTodayLabel] = useState("TODAY");
 
   useEffect(() => {
-    const complete = window.localStorage.getItem("ah-onboarding-complete");
-    if (!complete) setSurveyOpen(true);
+    setTodayLabel(new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(new Date()).toUpperCase());
+    try {
+      const savedTasks = window.localStorage.getItem("ah-tasks");
+      const savedPreferences = window.localStorage.getItem("ah-preferences");
+      if (savedTasks) setTasks(JSON.parse(savedTasks) as Task[]);
+      if (savedPreferences) {
+        const preferences = JSON.parse(savedPreferences) as {
+          reminder?: string; workStyle?: string; notificationLevel?: string;
+          availableTime?: string; priorities?: string[];
+        };
+        if (preferences.reminder) setReminder(preferences.reminder);
+        if (preferences.workStyle) setWorkStyle(preferences.workStyle);
+        if (preferences.notificationLevel) setNotificationLevel(preferences.notificationLevel);
+        if (preferences.availableTime) setAvailableTime(preferences.availableTime);
+        if (preferences.priorities) setPriorities(preferences.priorities);
+      }
+    } catch {
+      window.localStorage.removeItem("ah-tasks");
+      window.localStorage.removeItem("ah-preferences");
+    }
+    if (!window.localStorage.getItem("ah-onboarding-complete")) setSurveyOpen(true);
     setDataLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (dataLoaded) window.localStorage.setItem("ah-tasks", JSON.stringify(tasks));
+  }, [tasks, dataLoaded]);
 
   const completed = tasks.filter((task) => task.done).length;
   const pending = tasks.length - completed;
   const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 
   const sortedTasks = useMemo(
-    () => [...tasks].sort((a, b) => Number(a.done) - Number(b.done)),
-    [tasks]
+    () => [...tasks]
+      .filter((task) => !searchQuery.trim() || `${task.title} ${task.subject} ${task.due}`.toLowerCase().includes(searchQuery.toLowerCase()))
+      .sort((a, b) => Number(a.done) - Number(b.done)),
+    [tasks, searchQuery]
   );
 
   function toggleTask(id: number) {
@@ -65,6 +97,19 @@ export default function Home() {
     setSurveyOpen(false);
     setToast("Your preferences have been saved.");
     window.setTimeout(() => setToast(""), 2800);
+  }
+
+  function addTask() {
+    const title = newTaskTitle.trim();
+    if (!title) return;
+    const task: Task = {
+      id: Date.now(), title, subject: newTaskSubject.trim() || "General",
+      due: newTaskDue.trim() || "No date set", priority: newTaskPriority, done: false
+    };
+    setTasks((current) => [task, ...current]);
+    setNewTaskTitle(""); setNewTaskSubject(""); setNewTaskDue("");
+    setNewTaskPriority("Medium"); setAddTaskOpen(false);
+    setToast("Task added."); window.setTimeout(() => setToast(""), 2500);
   }
 
   function requestHelp() {
@@ -87,7 +132,7 @@ export default function Home() {
         <nav className="side-nav" aria-label="Main navigation">
           <a className="nav-item active" href="#dashboard" onClick={() => setMenuOpen(false)}><LayoutDashboard size={18} />Dashboard</a>
           <a className="nav-item" href="#tasks" onClick={() => setMenuOpen(false)}><ListTodo size={18} />My tasks<span className="nav-count">{pending}</span></a>
-          <a className="nav-item" href="#calendar" onClick={() => setMenuOpen(false)}><CalendarDays size={18} />Calendar</a>
+          <a className="nav-item" href="#calendar" onClick={() => setMenuOpen(false)}><CalendarDays size={18} />Upcoming</a>
           <button className="nav-item" onClick={() => { setNotificationsOpen(true); setMenuOpen(false); }}><Bell size={18} />Notifications<span className="notification-dot" /></button>
           <button className="nav-item" onClick={() => { setAssistantOpen(true); setMenuOpen(false); }}><Sparkles size={18} />AI assistant</button>
         </nav>
@@ -109,10 +154,7 @@ export default function Home() {
             <div className="breadcrumb">Workspace <span>/</span> <strong>Dashboard</strong></div>
           </div>
           <div className="topbar-actions">
-            <div className="search-box"><Search size={16} /><input aria-label="Search tasks" placeholder="Search anything..." onChange={(event) => {
-              const query = event.target.value.toLowerCase();
-              if (query) setTasks((current) => current.map((task) => ({ ...task, done: task.done })));
-            }} /></div>
+            <div className="search-box"><Search size={16} /><input aria-label="Search tasks" placeholder="Search tasks..." value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
             <button className="icon-button notification-button" aria-label="Open notifications" onClick={() => setNotificationsOpen(true)}><Bell size={19} /><i /></button>
             <div className="avatar top-avatar">AH</div>
           </div>
@@ -120,7 +162,7 @@ export default function Home() {
 
         <div className="page-content">
           <section className="welcome-row">
-            <div><div className="eyebrow">SATURDAY, NOVEMBER 21</div><h1>Good morning <span className="wave">✦</span></h1><p>Here&apos;s what&apos;s happening with your workload today.</p></div>
+            <div><div className="eyebrow">{todayLabel}</div><h1>Good morning <span className="wave">✦</span></h1><p>Here&apos;s what&apos;s happening with your workload today.</p></div>
             <button className="button button-secondary preferences-button" onClick={() => setSurveyOpen(true)}><Settings2 size={16} /> Preferences</button>
           </section>
 
@@ -133,18 +175,19 @@ export default function Home() {
           <section className="content-grid">
             <div className="primary-column">
               <article className="panel task-panel" id="tasks">
-                <div className="panel-heading"><div><h2>Your tasks</h2><p>A little progress adds up.</p></div><button className="text-button" onClick={() => setToast("Task creation will be connected to your account in the next phase.")}>View all <ArrowRight size={15} /></button></div>
+                <div className="panel-heading"><div><h2>Your tasks</h2><p>A little progress adds up.</p></div><button className="text-button" onClick={() => setSearchQuery("")}>Clear search <ArrowRight size={15} /></button></div>
                 <div className="task-list">
+                  {sortedTasks.length === 0 && <div className="empty-notifications"><strong>No matching tasks</strong><span>Try another search term or add a new task.</span></div>}
                   {sortedTasks.map((task) => <div className={`task-row ${task.done ? "task-done" : ""}`} key={task.id}>
                     <button className={`task-check ${task.done ? "checked" : ""}`} aria-label={task.done ? "Mark incomplete" : "Mark complete"} onClick={() => toggleTask(task.id)}>{task.done && <Check size={14} />}</button>
                     <div className="task-main"><strong>{task.title}</strong><span>{task.subject} <i /> Due {task.due}</span></div>
                     <span className={`priority priority-${task.priority.toLowerCase()}`}>{task.priority}</span>
                   </div>)}
                 </div>
-                <button className="add-task-button" onClick={() => setToast("Manual task creation is coming soon.")}><Plus size={16} /> Add a task</button>
+                <button className="add-task-button" onClick={() => setAddTaskOpen(true)}><Plus size={16} /> Add a task</button>
               </article>
 
-              <article className="panel integrations-panel">
+              <article className="panel integrations-panel" id="calendar">
                 <div className="panel-heading"><div><h2>Connect your services</h2><p>Bring your schoolwork into one place.</p></div><span className="integration-count">0 of 5 connected</span></div>
                 <div className="integration-grid">
                   {services.map((service) => <div className="integration-item" key={service.name}><div className="integration-logo" style={{ color: service.color }}>{service.icon}</div><div className="integration-copy"><strong>{service.name}</strong><span>{service.detail}</span></div><span className="connect-status">Soon</span></div>)}
@@ -174,6 +217,16 @@ export default function Home() {
           <footer className="page-footer"><span>Assignment Helper</span><span>Made to make busy days feel simpler.</span><button onClick={() => setToast("Help centre coming soon.")}><CircleHelp size={14} /> Help</button></footer>
         </div>
       </section>
+
+      {addTaskOpen && <div className="modal-backdrop"><section className="survey-modal task-modal" role="dialog" aria-modal="true" aria-labelledby="add-task-title">
+        <div className="survey-header"><div className="brand-mark"><Plus size={20} /></div><button className="icon-button" aria-label="Close add task" onClick={() => setAddTaskOpen(false)}><X size={19} /></button></div>
+        <div className="eyebrow">YOUR WORKSPACE</div><h2 id="add-task-title">Add a task</h2><p className="survey-intro">Keep track of something you need to get done.</p>
+        <div className="survey-field"><label htmlFor="new-task-title">Task name</label><input id="new-task-title" value={newTaskTitle} onChange={(event) => setNewTaskTitle(event.target.value)} placeholder="e.g. Finish science worksheet" /></div>
+        <div className="survey-field"><label htmlFor="new-task-subject">Subject</label><input id="new-task-subject" value={newTaskSubject} onChange={(event) => setNewTaskSubject(event.target.value)} placeholder="e.g. Biology" /></div>
+        <div className="survey-field"><label htmlFor="new-task-due">Due date or reminder</label><input id="new-task-due" value={newTaskDue} onChange={(event) => setNewTaskDue(event.target.value)} placeholder="e.g. Friday or 25 Nov" /></div>
+        <div className="survey-field"><label htmlFor="new-task-priority">Priority</label><select id="new-task-priority" value={newTaskPriority} onChange={(event) => setNewTaskPriority(event.target.value as Task["priority"])}><option>High</option><option>Medium</option><option>Low</option></select></div>
+        <div className="survey-actions"><button className="button button-secondary" onClick={() => setAddTaskOpen(false)}>Cancel</button><button className="button button-primary" disabled={!newTaskTitle.trim()} onClick={addTask}>Add task <ArrowRight size={16} /></button></div>
+      </section></div>}
 
       {surveyOpen && <div className="modal-backdrop"><section className="survey-modal" role="dialog" aria-modal="true" aria-labelledby="survey-title">
         <div className="survey-header"><div className="brand-mark"><ClipboardCheck size={20} /></div><button className="icon-button" aria-label="Close survey" onClick={() => setSurveyOpen(false)}><X size={19} /></button></div>
