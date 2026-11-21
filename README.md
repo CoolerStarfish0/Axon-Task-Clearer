@@ -7,7 +7,9 @@ A clean, mobile-first productivity dashboard for bringing schoolwork, deadlines,
 - Next.js App Router + TypeScript
 - Responsive clean-light dashboard with blue accents
 - First-visit onboarding preferences survey
-- Local demo task list with completion toggles
+- Add tasks with subject, due-date notes, and priority
+- Search tasks and mark them complete/incomplete
+- Tasks and onboarding preferences saved in the current browser
 - Notification drawer and AI assistant request panel (clearly marked as not connected)
 - Responsive mobile navigation and compact layouts
 
@@ -32,4 +34,4 @@ Gmail, Google Calendar, Google Classroom, Google Drive, and Google Tasks will be
 
 ## Current limitations
 
-This is the UI foundation only. Tasks are demo data held in component state; onboarding preferences are stored in the current browser's local storage. Google services, persistent accounts, real push notifications, and AI execution are not connected yet.
+This is currently a browser-local website foundation. Tasks and onboarding preferences are saved in local storage on the device/browser being used; they are not synced between devices or accounts. Google services, real push notifications, user accounts, and AI execution are not connected yet. The service cards and AI panel are honest placeholders until their secure server-side integrations are configured.
