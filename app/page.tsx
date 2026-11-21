@@ -53,6 +53,27 @@ export default function Home() {
   const [authError, setAuthError] = useState("");
 
   useEffect(() => {
+    if (!firebaseReady || !auth) { setAuthLoading(false); return; }
+    return onAuthStateChanged(auth, (currentUser) => { setUser(currentUser); setAuthLoading(false); });
+  }, []);
+
+  async function handleGoogleSignIn() {
+    if (!auth || !googleProvider) { setAuthError("Firebase is not configured yet. Add the NEXT_PUBLIC_FIREBASE settings to Vercel."); return; }
+    setAuthError("");
+    try { await signInWithPopup(auth, googleProvider); }
+    catch (error) {
+      const code = (error as { code?: string }).code;
+      setAuthError(code === "auth/popup-closed-by-user" ? "Sign-in was cancelled." : code === "auth/unauthorized-domain" ? "This website domain is not authorized in Firebase yet." : "Google sign-in failed. Please try again.");
+    }
+  }
+
+  async function handleSignOut() {
+    if (!auth) return;
+    try { await signOut(auth); setToast("Signed out."); }
+    catch { setAuthError("Could not sign out. Please try again."); }
+  }
+
+  useEffect(() => {
     setTodayLabel(new Intl.DateTimeFormat("en", { weekday: "long", month: "long", day: "numeric" }).format(new Date()).toUpperCase());
     try {
       const savedTasks = window.localStorage.getItem("ah-tasks");
@@ -163,11 +184,13 @@ export default function Home() {
           <div className="topbar-actions">
             <div className="search-box"><Search size={16} /><input aria-label="Search tasks" placeholder="Search tasks..." value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
             <button className="icon-button notification-button" aria-label="Open notifications" onClick={() => setNotificationsOpen(true)}><Bell size={19} /><i /></button>
-            <div className="avatar top-avatar">AH</div>
+            {user ? <div className="avatar top-avatar">{user.photoURL ? <img src={user.photoURL} alt="" /> : (user.displayName || "AH").slice(0,2).toUpperCase()}</div> : <button className="button google-signin" onClick={handleGoogleSignIn} disabled={authLoading}><LogIn size={15}/>{authLoading ? "Loading..." : "Sign in"}</button>}
           </div>
         </header>
 
         <div className="page-content">
+          {authError && <div className="auth-error" role="alert">{authError}<button onClick={() => setAuthError("")} aria-label="Dismiss"><X size={15}/></button></div>}
+          {!firebaseReady && <div className="auth-config-notice">Google sign-in is awaiting Firebase configuration.</div>}
           <section className="welcome-row">
             <div><div className="eyebrow">{todayLabel}</div><h1>Good morning <span className="wave">✦</span></h1><p>Here&apos;s what&apos;s happening with your workload today.</p></div>
             <button className="button button-secondary preferences-button" onClick={() => setSurveyOpen(true)}><Settings2 size={16} /> Preferences</button>
