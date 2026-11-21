@@ -31,11 +31,11 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [reminder, setReminder] = useState("Depends on workload");
+  const [reminder, setReminder] = useState("Depends on work load");
   const [workStyle, setWorkStyle] = useState("A little every day");
   const [notificationLevel, setNotificationLevel] = useState("Normal reminders");
   const [availableTime, setAvailableTime] = useState("Varies");
-  const [priorities, setPriorities] = useState<string[]>(["Assignments", "Tests and exams", "Projects"]);
+  const [priorities, setPriorities] = useState<string[]>(["School assignments", "Tests and exams", "Projects"]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -263,11 +263,11 @@ export default function Home() {
         <div className="survey-header"><div className="brand-mark"><ClipboardCheck size={20} /></div><button className="icon-button" aria-label="Close survey" onClick={() => setSurveyOpen(false)}><X size={19} /></button></div>
         <div className="survey-progress"><span /></div>
         <div className="eyebrow">A QUICK PERSONAL SETUP</div><h2 id="survey-title">Let&apos;s make this work for you.</h2><p className="survey-intro">A few preferences help Assignment Helper plan reminders around your routine. You can change these any time.</p>
-        <div className="survey-field"><label>When would you like to be reminded about tasks?</label><div className="choice-grid">{["3 days before due date", "1 week before due date", "Depends on workload", "On the due date", "Let me customize each reminder"].map((option) => <button key={option} className={`choice ${reminder === option ? "choice-selected" : ""}`} onClick={() => setReminder(option)}><span className="choice-radio">{reminder === option && <i />}</span>{option}</button>)}</div></div>
+        <div className="survey-field"><label>When would you like to be reminded about tasks?</label><div className="choice-grid">{["3 days before due date", "Week before due date", "Depends on work load"].map((option) => <button key={option} className={`choice ${reminder === option ? "choice-selected" : ""}`} onClick={() => setReminder(option)}><span className="choice-radio">{reminder === option && <i />}</span>{option}</button>)}</div></div>
         <div className="survey-field"><label htmlFor="work-style">How do you prefer to work?</label><select id="work-style" value={workStyle} onChange={(event) => setWorkStyle(event.target.value)}><option>A little every day</option><option>Finish everything early</option><option>Work closer to deadlines</option><option>Depends on the assignment</option></select></div>
         <div className="survey-field"><label htmlFor="notifications">How many notifications would you like?</label><select id="notifications" value={notificationLevel} onChange={(event) => setNotificationLevel(event.target.value)}><option>Only important updates</option><option>Normal reminders</option><option>Frequent reminders</option></select></div>
         <div className="survey-field"><label htmlFor="available-time">When are you usually available?</label><select id="available-time" value={availableTime} onChange={(event) => setAvailableTime(event.target.value)}><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Varies</option></select></div>
-        <div className="survey-field"><label>What should we help you keep track of?</label><div className="choice-grid">{["Assignments", "Tests and exams", "Projects", "Reading", "Extracurriculars"].map((item) => <button key={item} type="button" className={`choice ${priorities.includes(item) ? "choice-selected" : ""}`} onClick={() => setPriorities((current) => current.includes(item) ? current.filter((value) => value !== item) : [...current, item])}><span className="choice-radio">{priorities.includes(item) && <i />}</span>{item}</button>)}</div></div>
+        <div className="survey-field"><label>What should Assignment Helper prioritize?</label><div className="choice-grid">{["School assignments", "Tests and exams", "Projects", "Everything equally"].map((item) => <button key={item} type="button" className={`choice ${priorities.includes(item) ? "choice-selected" : ""}`} onClick={() => setPriorities((current) => current.includes(item) ? current.filter((value) => value !== item) : [...current, item])}><span className="choice-radio">{priorities.includes(item) && <i />}</span>{item}</button>)}</div></div>
         <div className="survey-actions"><button className="button button-secondary" onClick={() => setSurveyOpen(false)}>Maybe later</button><button className="button button-primary" onClick={finishSurvey}>Save preferences <ArrowRight size={16} /></button></div>
       </section></div>}
 
