@@ -52,6 +52,7 @@ export default function Home() {
     try {
       const savedTasks = window.localStorage.getItem("ah-tasks");
       const savedPreferences = window.localStorage.getItem("ah-preferences");
+      const onboardingComplete = window.localStorage.getItem("ah-onboarding-complete") === "true" || Boolean(savedPreferences);
       if (savedTasks) setTasks(JSON.parse(savedTasks) as Task[]);
       if (savedPreferences) {
         const preferences = JSON.parse(savedPreferences) as {
@@ -68,7 +69,8 @@ export default function Home() {
       window.localStorage.removeItem("ah-tasks");
       window.localStorage.removeItem("ah-preferences");
     }
-    if (!window.localStorage.getItem("ah-onboarding-complete")) setSurveyOpen(true);
+    if (!onboardingComplete) setSurveyOpen(true);
+    else window.localStorage.setItem("ah-onboarding-complete", "true");
     setDataLoaded(true);
   }, []);
 
@@ -92,8 +94,8 @@ export default function Home() {
   }
 
   function finishSurvey() {
-    window.localStorage.setItem("ah-onboarding-complete", "true");
     window.localStorage.setItem("ah-preferences", JSON.stringify({ reminder, workStyle, notificationLevel, availableTime, priorities }));
+    window.localStorage.setItem("ah-onboarding-complete", "true");
     setSurveyOpen(false);
     setToast("Your preferences have been saved.");
     window.setTimeout(() => setToast(""), 2800);
