@@ -164,3 +164,15 @@ h1{font-family:Manrope,sans-serif;font-size:27px;letter-spacing:-1.1px;margin-bo
 .button:disabled{opacity:.45;cursor:not-allowed}
 .task-modal{max-height:min(92vh,760px)}
 @media(max-width:640px){.task-modal{max-height:94dvh}}
+
+/* Google authentication controls */
+.google-signin{background:#fff;border:1px solid #e3e8f0;color:#43526a;height:35px;padding:0 11px;font-size:11px}
+.google-signin:hover{background:#f7f9fc}
+.google-signin:disabled{opacity:.65}
+.profile-action{margin-left:auto;border:0;background:transparent;color:#8290a4;border-radius:7px;height:30px;width:30px;display:grid;place-items:center;flex:none}
+.profile-action:hover{background:#f0f5ff;color:#3978ed}
+.profile-card .avatar img,.top-avatar img{height:100%;width:100%;object-fit:cover;border-radius:50%}
+.auth-error,.auth-config-notice{border-radius:9px;padding:10px 12px;font-size:11px;margin:0 0 16px;display:flex;align-items:center;gap:8px}
+.auth-error{background:#fff1f0;color:#b74740;border:1px solid #f5d8d5}
+.auth-error button{margin-left:auto;border:0;background:transparent;color:inherit;display:grid;place-items:center}
+.auth-config-notice{background:#f4f7fc;color:#718096;border:1px solid #e5ebf4}
